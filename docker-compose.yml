@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  rasdaman:
+    image: rasdaman/rasdaman:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - DEFAULT_USER=rasadmin
+      - DEFAULT_PASS=rasadmin
+      - POSTGRES_USER=rasdaman
+      - POSTGRES_PASSWORD=rasdaman
+      - POSTGRES_DB=rasdaman
+    volumes:
+      - rasdaman_data:/var/lib/rasdaman
+    depends_on:
+      - postgres
+    networks:
+      - rasdaman_network
+
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=rasdaman
+      - POSTGRES_PASSWORD=rasdaman
+      - POSTGRES_DB=rasdaman
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rasdaman_network
+
+  petascope:
+    image: rasdaman/petascope:latest
+    ports:
+      - "8081:8080"
+    environment:
+      - DEFAULT_USER=rasadmin
+      - DEFAULT_PASS=rasadmin
+      - POSTGRES_USER=rasdaman
+      - POSTGRES_PASSWORD=rasdaman
+      - POSTGRES_DB=rasdaman
+      - POSTGRES_HOST=postgres
+    depends_on:
+      - postgres
+      - rasdaman
+    networks:
+      - rasdaman_network
+
+volumes:
+  rasdaman_data:
+  postgres_data:
+
+networks:
+  rasdaman_network:
+    driver: bridge 
